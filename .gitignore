@@ -1,0 +1,16 @@
+*.ncb
+*.pdb
+*.sdf
+*.suo
+*.swp
+*.idc
+*.user
+*.bak
+*.opensdf
+#*#
+*~
+*.orig
+
+/bin
+/build
+.idea
