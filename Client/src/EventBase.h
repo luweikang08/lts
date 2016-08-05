@@ -7,7 +7,19 @@
 #ifndef LTS_EVENTBASE_H
 #define LTS_EVENTBASE_H
 
+#include <event2/event.h>
+#include <event2/bufferevent.h>
+#include <event2/buffer.h>
+#include <event2/event_struct.h>
+#include <event2/event_compat.h>
+
 #define EV_FUNCTIONSET {return 0;}   // = 0 , pure virtual function
+
+#ifdef WIN32
+#define CLOSE closesocket
+#else
+#define CLOSE close
+#endif
 
 namespace lts
 {
@@ -18,8 +30,9 @@ namespace lts
 		virtual int Start() EV_FUNCTIONSET;
 		virtual int on_accept(int socket, struct sock_ev* ev) EV_FUNCTIONSET;
 		virtual int on_send(int socket, const char*msg, int length) EV_FUNCTIONSET;
-		virtual int on_close() EV_FUNCTIONSET;
+		virtual int on_close(int socket) EV_FUNCTIONSET;
 		virtual int on_message(struct sock_ev* ev) EV_FUNCTIONSET;
+		virtual int on_time() EV_FUNCTIONSET;
 	protected:
 		struct event_base* base;
 	};
@@ -28,6 +41,7 @@ namespace lts
 		struct event* read_ev;
 		struct event* write_ev;
 		struct event* close_ev;
+		struct event* time_ev;
 		char* buffer;
 		EventBase* eventBase;
 		int bufferSize;

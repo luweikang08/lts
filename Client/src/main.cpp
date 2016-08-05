@@ -221,6 +221,9 @@ int main(int argc, char** argv)
 
 	Sleep(100);
 	client.on_send("focus on this!", (int)strlen("focus on this!"));
+
+	struct timeval timeout = { 1, 0 };
+	client.AddTimer(timeout);
 	client.Start();
 	printf("program over.\n");
 	return 0;

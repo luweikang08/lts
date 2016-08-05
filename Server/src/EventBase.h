@@ -32,6 +32,7 @@ namespace lts
 		virtual int on_send(int socket, const char*msg, int length) EV_FUNCTIONSET;
 		virtual int on_close(int socket) EV_FUNCTIONSET;
 		virtual int on_message(struct sock_ev* ev) EV_FUNCTIONSET;
+		virtual int on_time() EV_FUNCTIONSET;
 	protected:
 		struct event_base* base;
 	};
@@ -40,6 +41,7 @@ namespace lts
 		struct event* read_ev;
 		struct event* write_ev;
 		struct event* close_ev;
+		struct event* time_ev;
 		char* buffer;
 		EventBase* eventBase;
 		int bufferSize;

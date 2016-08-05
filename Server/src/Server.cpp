@@ -70,7 +70,7 @@ namespace lts
 				event_read_l->buffer = (char*)malloc(MEM_SIZE);
 				memset(event_read_l->buffer, 0, MEM_SIZE);
 				size = recv(sock, event_read_l->buffer, MEM_SIZE, 0);
-				printf("1111receive data:%s, size:%d\n", event_read_l->buffer, size);
+				//printf("1111receive data:%s, size:%d\n", event_read_l->buffer, size);
 				if (size <= 0) {
 					event_del(event_read_l->read_ev);
 					//event_del(event_read_l->write_ev);
@@ -129,7 +129,7 @@ namespace lts
 
 	int Server::on_send(int socket, const char*msg, int length)
 	{
-		printf("send message:%s, size:%d\n", msg, length);
+		printf("send to %d message:%s, size:%d\n", socket, msg, length);
 		return ::send(socket, msg, length, 0);
 		return 0;
 	}
@@ -144,6 +144,30 @@ namespace lts
 	{
 		printf("receive data:%s, size:%d\n", ev->buffer, ev->bufferSize);
 		on_send(ev->socket, ev->buffer, ev->bufferSize);
+		return 0;
+	}
+
+	int Server::on_time()
+	{
+		printf("Server::on_time\n");
+		return 0;
+	}
+
+	int Server::AddTimer(struct timeval time)
+	{
+		struct sock_ev* event_timer = (struct sock_ev*)malloc(sizeof(struct sock_ev));
+		memset(event_timer, 0, sizeof(struct sock_ev));
+		event_timer->time_ev = (struct event*)malloc(sizeof(struct event));
+		event_timer->eventBase = this;
+
+		auto func_time = [](int sock, short eventer, void* arg)
+		{
+			struct sock_ev* event_time_l = (struct sock_ev*)arg;
+			event_time_l->eventBase->on_time();
+		};
+		event_set(event_timer->time_ev, 0, EV_TIMEOUT | EV_PERSIST, func_time, event_timer);
+		event_base_set(base, event_timer->time_ev);
+		event_add(event_timer->time_ev, &time);
 		return 0;
 	}
 

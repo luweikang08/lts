@@ -42,9 +42,10 @@ namespace lts
 
 		int Connect(struct sockaddr_in sin);
 		int Start();
-		void AddTimer();
+		int AddTimer(struct timeval time);
 		int on_send(const char*msg, int length);
 		int on_close();
+		int on_time();
 		virtual int on_message(struct sock_ev* ev);
 	protected:
 		int m_socket;

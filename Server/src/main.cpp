@@ -186,6 +186,10 @@ int main(int argc, char** argv)
 
 	testServer tServer;
 	tServer.Bind(my_addr);
+
+	//struct timeval timeout = { 3, 0 };
+	//tServer.AddTimer(timeout);
+
 	tServer.Start();
 
 	return 0;

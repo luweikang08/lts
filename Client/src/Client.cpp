@@ -48,24 +48,22 @@ namespace lts
 		event_base_set(base, ev_read->read_ev);
 		event_add(ev_read->read_ev, NULL);
 
-		auto func_close = [](int sock, short eventer, void* arg){
-			int size;
-			struct sock_ev* ev_close_tmp = (struct sock_ev*)arg;
-			ev_close_tmp->buffer = (char*)malloc(MEM_SIZE);
-			memset(ev_close_tmp->buffer, 0, MEM_SIZE);
-			size = recv(sock, ev_close_tmp->buffer, MEM_SIZE, 0);
-
-			if (size <= 0) {
-				release_sock_event(ev_close_tmp);
-				CLOSE(sock);
-			}
-			ev_close_tmp->bufferSize = size;
-			ev_close_tmp->eventBase->on_message(ev_close_tmp);
-
-		};
-		event_set(ev_read->read_ev, m_socket, EV_READ | EV_PERSIST, func_read, ev_read);
-		event_base_set(base, ev_read->read_ev);
-		event_add(ev_read->read_ev, NULL);
+		//auto func_close = [](int sock, short eventer, void* arg){
+		//	int size;
+		//	struct sock_ev* ev_close_tmp = (struct sock_ev*)arg;
+		//	ev_close_tmp->buffer = (char*)malloc(MEM_SIZE);
+		//	memset(ev_close_tmp->buffer, 0, MEM_SIZE);
+		//	size = recv(sock, ev_close_tmp->buffer, MEM_SIZE, 0);
+		//	if (size <= 0) {
+		//		release_sock_event(ev_close_tmp);
+		//		CLOSE(sock);
+		//	}
+		//	ev_close_tmp->bufferSize = size;
+		//	ev_close_tmp->eventBase->on_message(ev_close_tmp);
+		//};
+		//event_set(ev_read->read_ev, m_socket, EV_READ | EV_PERSIST, func_read, ev_read);
+		//event_base_set(base, ev_read->read_ev);
+		//event_add(ev_read->read_ev, NULL);
 		return 0;
 	}
 
@@ -85,12 +83,38 @@ namespace lts
 	{
 		//TODO: my work
 		printf("receive message:%s, size:%d\n", ev->buffer, ev->bufferSize);
+		//Sleep(1000);
+		//::send(m_socket, ev->buffer, ev->bufferSize, 0);
 		return 0;
 	}
 
 	int Client::on_close()
 	{
+		return 0;
+	}
 
+	int Client::AddTimer(struct timeval time)
+	{
+		struct sock_ev* event_timer = (struct sock_ev*)malloc(sizeof(struct sock_ev));
+		memset(event_timer, 0, sizeof(struct sock_ev));
+		event_timer->time_ev = (struct event*)malloc(sizeof(struct event));
+		event_timer->eventBase = this;
+
+		auto func_time = [](int sock, short eventer, void* arg)
+		{
+			struct sock_ev* event_time_l = (struct sock_ev*)arg;
+			event_time_l->eventBase->on_time();
+		};
+		event_set(event_timer->time_ev, 0, EV_TIMEOUT | EV_PERSIST, func_time, event_timer);
+		event_base_set(base, event_timer->time_ev);
+		event_add(event_timer->time_ev, &time);
+		return 0;
+	}
+
+	int Client::on_time()
+	{
+		printf("Client::on_time\n");
+		::send(m_socket, "Client::on_time", strlen("Client::on_time"), 0);
 		return 0;
 	}
 }
